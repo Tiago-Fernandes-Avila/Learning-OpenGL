@@ -1,0 +1,30 @@
+/*
+trabalhando com os shaders do pipeline
+a comunicação pode ser feita até onde vi por entradas e saidas e por valores uniformes
+
+entradas e saidas utilizamos para enviar receber valores entre camadas adjacentes(no nosso caso vertice e fragmento).
+
+e as uniforms são variaveis globais do programa do shader, se existirem em ambos os shaders elas assumiram valores iguais. e nos dão a capacidade de pegarmos suas localizações em codigo open gl para podermos modifica-las em tempo de renderização.
+
+para isso podemos usar a função glGetUniformLocation(); que recebe dois parametros o programa shader que vamos usar e o nome da variavel uniform. lembrando que para pegar a location da uniform não preciso estar com o progrma ativo porem para mandar valores para ela obviamente eu preciso estar com ela ativa para isso utilizamos funções como glUniform4f(); que envia um objeto vetor de 4 valores.
+
+o parametro primario será a localização da uniform e depois valores da carga util que iremos enviar.
+
+Agora vamos falar sobre os atributos de vertices basicamente a maiorias das gpu permitem que vertices possuam no maximo 16 atributos, podemos verificar isso com a função glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, bufferDeMemoriaNativa);
+Esses atributos de vertices podem ser qualquer coisa como: cor, posição, normal e etc..... mas essa informção precisa ser normalizada ou seja precisamos dizer para a gpu: ei gpu esse atibuto de cor fica depois do atributo de posição e ocupa 3 valores. como estamos carecas de saber isso é feito pelo VAO em funções como glAttribPointter(); e a função glEnableVertexAttribArray(o valor da posição do atributo que queremos ativar).
+a
+gora temos uma ideia bem solida de algo muito poderoso que vamos usar no shader de vertice para pegar esses atributos que é com a propriedede layout(location = 0 ou 1) no caso 0 pode ser os dados de posição do vertice e 1 para dados das cores daquele vertice.
+
+esquema:
+    0       1
+[ x y z | r g b |] [ segundo vértice ]  [terceiro vértice]....
+
+no caso no shader quando uso o layout(location = 0) in vec3 posições;
+quer dizer para cada vertice do vbo armazene esse atributo: que esta na posição 0 relativo a cada vertice da matriz de vertices.
+recapitulando os parametros do glVertexAttribPointer(temosAPosiçãoDoAtributo, TamanhoEmIndicesDoAtributo, OTipoDeDado, normalizaçãoDasCoordenadasCasoSejaUmValorByteSeNãoSeráIgnorada, PodeSerOtamanhoDoVerticeConsiderandoSeusAtributosEmBytes, QuantosBytesPrecisoPularParaChegarNesseAtributoEspecificoRelativoAoVertice);
+
+Bom no final criamos um triangulo com cada um de seus vertices tendo um atributo de cor. mas no final obtivemos um degrade de cores entre elas. o que aconteceu foi que na pipeline de renderização, na etapa de rasterização ocasiona em muitos mais fragmentos do que vertices onde ele mapeia para cada pixel na area do triangulo uma cor e para isso acontece uma interpolação de fragmentos onde o resultado é uma variação linear das cores. 
+
+Fonte: https://learnopengl.com/Getting-started/Shaders
+
+*/

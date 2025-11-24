@@ -7,6 +7,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
 import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
 import static org.lwjgl.glfw.GLFW.glfwDefaultWindowHints;
 import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
+import static org.lwjgl.glfw.GLFW.glfwGetTime;
 import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
@@ -43,8 +44,10 @@ import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glGetProgramInfoLog;
 import static org.lwjgl.opengl.GL20.glGetProgrami;
 import static org.lwjgl.opengl.GL20.glGetShaderi;
+import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 import static org.lwjgl.opengl.GL20.glLinkProgram;
 import static org.lwjgl.opengl.GL20.glShaderSource;
+import static org.lwjgl.opengl.GL20.glUniform4f;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
@@ -55,26 +58,16 @@ import java.nio.IntBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL;
+import com.*;
 
 public class Ex_2triangles {
 
-    private final String vertexSrc = " #version 330 core \n" +
-            "layout(location = 0) in vec3 aPos; \n" +
-            "void main() { \n" +
-            "gl_Position = vec4(aPos, 1.0);\n" +
-            "}";
+    private final String vertexSrc = ReadShader.read("/home/devtiago/Área de trabalho/Workspace/programas c++/LWJGL-OpenGL-/demo/src/main/java/com/example/shaders/vertexShaders/vertexShader1.glsl");
 
-    private final String fragmentSrc1 = "#version 330 core\n" +
-            "out vec4 FragColor; \n" +
-            "void main() {\n" +
-            "    FragColor = vec4(0.0, 1.0, 0.0, 1.0);" +
-            "};";
+    private final String fragmentSrc1 = ReadShader.read("/home/devtiago/Área de trabalho/Workspace/programas c++/LWJGL-OpenGL-/demo/src/main/java/com/example/shaders/FragmentShader/fragS1.glsl");
 
-    private final String fragmentSrc2 = "#version 330 core\n" +
-            "out vec4 FragColor; \n" +
-            "void main() {\n" +
-            "    FragColor = vec4(0.0, 0.0, 1.0, 1.0);" +
-            "};";
+    private final String fragmentSrc2 = ReadShader.read("/home/devtiago/Área de trabalho/Workspace/programas c++/LWJGL-OpenGL-/demo/src/main/java/com/example/shaders/FragmentShader/fragS2.glsl");
+
     private long window;
 
     private int VAO1;
@@ -107,11 +100,14 @@ public class Ex_2triangles {
         while (!glfwWindowShouldClose(window)) {
             glClear(GL_COLOR_BUFFER_BIT);
 
-            glBindVertexArray(VAO1);
+            glBindVertexArray(VAO2);
             glUseProgram(shaderProgrma2);
+            int glVertexColorLocation = glGetUniformLocation(shaderProgrma2, "colorFromCpu");
+            glUniform4f(glVertexColorLocation,0.0f, 0.0f, 2 * (float) Math.abs(Math.sin((float)glfwGetTime())) / 2.0f, 1.0f);
             glDrawArrays(GL_TRIANGLES, 0, 3);
 
-            glBindVertexArray(VAO2);
+
+            glBindVertexArray(VAO1);
             glUseProgram(shaderProgram1);
             glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -157,9 +153,10 @@ public class Ex_2triangles {
         };
 
         float[] triangle2 = {
-                1.0f, 0.0f, 0.0f,
-                0.5f, 0.8f, 0.0f,
-                0.0f, 0.0f, 0.0f,
+                //position        colors
+                1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+                0.5f, 0.8f, 0.0f, 0.0f, 1.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f 
         };
 
         VBO1 = glGenBuffers();
@@ -173,6 +170,7 @@ public class Ex_2triangles {
         glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * Float.BYTES, 0);
         glEnableVertexAttribArray(0);
+        
 
         VBO2 = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, VBO2);
@@ -183,8 +181,10 @@ public class Ex_2triangles {
         glBindVertexArray(VAO2);
 
         glBufferData(GL_ARRAY_BUFFER, buffer2, GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * Float.BYTES, 0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * Float.BYTES, 0);
         glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, false, 6 * Float.BYTES, 3 * Float.BYTES); 
+        glEnableVertexAttribArray(1);
 
         setShaderProgram();
 
@@ -233,3 +233,5 @@ public class Ex_2triangles {
     }
 
 }
+
+
